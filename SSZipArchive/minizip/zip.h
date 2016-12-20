@@ -15,7 +15,7 @@
 #ifndef _ZIP_H
 #define _ZIP_H
 
-#define HAVE_AES
+//#define HAVE_AES
 
 #ifdef __cplusplus
 extern "C" {

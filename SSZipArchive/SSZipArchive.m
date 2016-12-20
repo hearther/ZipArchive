@@ -15,6 +15,43 @@
 
 #define CHUNK 16384
 
+int get_file_crc(const char* filenameinzip, void *buf, unsigned long size_buf, unsigned long* result_crc)
+{
+    FILE *fin = NULL;
+    unsigned long calculate_crc = 0;
+    unsigned int size_read = 0;
+    int err = ZIP_OK;
+    
+    fin = fopen(filenameinzip,"rb");
+    if (fin == NULL)
+        err = ZIP_ERRNO;
+    else
+    {
+        do
+        {
+            size_read = (int)fread(buf,1,size_buf,fin);
+            
+            if ((size_read < size_buf) && (feof(fin) == 0))
+            {
+                printf("error in reading %s\n",filenameinzip);
+                err = ZIP_ERRNO;
+            }
+            
+            if (size_read > 0)
+                calculate_crc = crc32(calculate_crc,buf,size_read);
+        }
+        while ((err == ZIP_OK) && (size_read > 0));
+    }
+    
+    if (fin)
+        fclose(fin);
+    
+    printf("file %s crc %lx\n", filenameinzip, calculate_crc);
+    *result_crc = calculate_crc;
+    return err;
+}
+
+
 @interface SSZipArchive ()
 + (NSDate *)_dateWithMSDOSFormat:(UInt32)msdosDateTime;
 @end
@@ -707,8 +744,13 @@
     {
         return NO;
     }
-
-    zipOpenNewFileInZip3(_zip, afileName, &zipInfo, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION, 0, -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, [password UTF8String], 0);
+    
+    unsigned long crcFile = 0;
+    if ((password != NULL)){
+        get_file_crc([path UTF8String], buffer, CHUNK, &crcFile);
+    }
+    
+    zipOpenNewFileInZip3(_zip, afileName, &zipInfo, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION, 0, -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, [password UTF8String], crcFile);
     unsigned int len = 0;
     
     while(!feof(input) && !ferror(input))
@@ -734,7 +776,12 @@
     zip_fileinfo zipInfo = {{0,0,0,0,0,0},0,0,0};
     [self zipInfo:&zipInfo setDate:[NSDate date]];
     
-    zipOpenNewFileInZip3(_zip, [filename UTF8String], &zipInfo, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION, 0, -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, [password UTF8String], 0);
+    unsigned long crcFile = 0;
+    if ((password != NULL)){
+        crcFile = crc32(crcFile,data.bytes,(unsigned int)data.length);
+    }
+    
+    zipOpenNewFileInZip3(_zip, [filename UTF8String], &zipInfo, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION, 0, -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, [password UTF8String], crcFile);
     
     zipWriteInFileInZip(_zip, data.bytes, (unsigned int)data.length);
     
