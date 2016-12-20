@@ -195,6 +195,7 @@ extern int ZEXPORT zipClose OF((zipFile file, const char* global_comment));
 
 /***************************************************************************/
 
+int get_file_crc(const char* filenameinzip, void *buf, unsigned long size_buf, unsigned long* result_crc);
 #ifdef __cplusplus
 }
 #endif

@@ -1913,3 +1913,38 @@ extern int ZEXPORT zipClose(zipFile file, const char *global_comment)
     return err;
 }
 
+int get_file_crc(const char* filenameinzip, void *buf, unsigned long size_buf, unsigned long* result_crc)
+{
+    FILE *fin = NULL;
+    unsigned long calculate_crc = 0;
+    unsigned int size_read = 0;
+    int err = ZIP_OK;
+    
+    fin = fopen(filenameinzip,"rb");
+    if (fin == NULL)
+        err = ZIP_ERRNO;
+    else
+    {
+        do
+        {
+            size_read = (int)fread(buf,1,size_buf,fin);
+            
+            if ((size_read < size_buf) && (feof(fin) == 0))
+            {
+                printf("error in reading %s\n",filenameinzip);
+                err = ZIP_ERRNO;
+            }
+            
+            if (size_read > 0)
+                calculate_crc = crc32(calculate_crc,buf,size_read);
+        }
+        while ((err == ZIP_OK) && (size_read > 0));
+    }
+    
+    if (fin)
+        fclose(fin);
+    
+    printf("file %s crc %lx\n", filenameinzip, calculate_crc);
+    *result_crc = calculate_crc;
+    return err;
+}
