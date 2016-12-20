@@ -587,7 +587,19 @@
 - (BOOL)open
 {
     NSAssert((_zip == NULL), @"Attempting open an archive which is already open");
+    
+    BOOL isDir;
+    BOOL exist = [[NSFileManager defaultManager] fileExistsAtPath:_path isDirectory:&isDir];
+    if (!exist){
     _zip = zipOpen([_path UTF8String], APPEND_STATUS_CREATE);
+    }
+    else {
+        if (!isDir){
+            _zip = zipOpen([_path UTF8String], APPEND_STATUS_ADDINZIP);
+        }
+    }
+    
+//    _zip = zipOpen3([_path UTF8String], APPEND_STATUS_CREATE, 104857600 , NULL, NULL);
     return (NULL != _zip);
 }
 
