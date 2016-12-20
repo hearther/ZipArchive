@@ -837,4 +837,47 @@
     return date;
 }
 
+- (BOOL)writeContentsOfDirectory:(NSString *)directoryPath keepParentDirectory:(BOOL)keepParentDirectory withPassword:(nullable NSString *)password{
+    
+    NSAssert((_zip != NULL), @"Attempting to write to an archive which was never opened");
+    
+    BOOL success = YES;
+    
+    NSFileManager *fileManager = nil;
+    
+    // use a local filemanager (queue/thread compatibility)
+    fileManager = [[NSFileManager alloc] init];
+    NSDirectoryEnumerator *dirEnumerator = [fileManager enumeratorAtPath:directoryPath];
+    NSString *fileName;
+    while ((fileName = [dirEnumerator nextObject]) && success) {
+        BOOL isDir;
+        NSString *fullFilePath = [directoryPath stringByAppendingPathComponent:fileName];
+        [fileManager fileExistsAtPath:fullFilePath isDirectory:&isDir];
+        
+        if (keepParentDirectory)
+        {
+            fileName = [[directoryPath lastPathComponent] stringByAppendingPathComponent:fileName];
+        }
+        
+        if (!isDir) {
+            success = [self writeFileAtPath:fullFilePath withFileName:fileName withPassword:password];
+        }
+        else
+        {
+            if([[NSFileManager defaultManager] subpathsOfDirectoryAtPath:fullFilePath error:nil].count == 0)
+            {
+                NSString *tempFilePath = [SSZipArchive _temporaryPathForDiscardableFile];
+                NSString *tempFileFilename = [fileName stringByAppendingPathComponent:tempFilePath.lastPathComponent];
+                success = [self writeFileAtPath:tempFilePath withFileName:tempFileFilename withPassword:password];
+            }
+        }
+    }
+    
+#if !__has_feature(objc_arc)
+    [fileManager release];
+#endif
+    
+    return success;
+}
+
 @end
