@@ -744,6 +744,14 @@
 
 - (BOOL)writeData:(NSData *)data filename:(nullable NSString *)filename withPassword:(nullable NSString *)password;
 {
+    return [self writeData:data
+                  filename:filename
+              withPassword:password
+                  withDate:[NSDate date]];
+}
+
+- (BOOL)writeData:(NSData *)data filename:(nullable NSString *)filename withPassword:(nullable NSString *)password withDate:(nullable NSDate*)date
+{    
     if (!_zip) {
         return NO;
     }
@@ -751,7 +759,7 @@
         return NO;
     }
     zip_fileinfo zipInfo = {{0,0,0,0,0,0},0,0,0};
-    [self zipInfo:&zipInfo setDate:[NSDate date]];
+    [self zipInfo:&zipInfo setDate:date];
     
     unsigned long crcFile = 0;
     if ((password != NULL)){
