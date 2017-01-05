@@ -108,7 +108,8 @@
                 int readBytes = unzReadCurrentFile(zip, buffer, (unsigned)MIN(10UL,fileInfo.uncompressed_size));
                 if (readBytes < 0) {
                     // Let's assume the invalid password caused this error
-                    if (readBytes != Z_DATA_ERROR) {
+//                    if (readBytes != Z_DATA_ERROR)
+                    {
                         if (error) {
                             *error = [NSError errorWithDomain:@"SSZipArchiveErrorDomain"
                                                          code:-4
