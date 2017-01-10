@@ -59,6 +59,14 @@ typedef voidp zipFile;
 #  endif
 #endif
 /* default memLevel */
+#ifndef Z_BUFSIZE
+#  define Z_BUFSIZE (64 * 1024)
+#endif
+#ifndef Z_MAXFILENAMEINZIP
+#  define Z_MAXFILENAMEINZIP (256)
+#endif
+    
+#define SIZEDATA_INDATABLOCK        (4096 - (4 * 4))
 
 /* tm_zip contain date/time info */
 typedef struct tm_zip_s
@@ -79,6 +87,76 @@ typedef struct
     uLong       external_fa;    /* external file attributes        4 bytes */
 } zip_fileinfo;
 
+typedef struct linkedlist_datablock_internal_s {
+    struct linkedlist_datablock_internal_s *next_datablock;
+    uLong avail_in_this_block;
+    uLong filled_in_this_block;
+    uLong unused;  /* for future use and alignment */
+    unsigned char data[SIZEDATA_INDATABLOCK];
+} linkedlist_datablock_internal;
+
+typedef struct linkedlist_data_s {
+    linkedlist_datablock_internal *first_block;
+    linkedlist_datablock_internal *last_block;
+} linkedlist_data;
+
+typedef struct {
+    z_stream stream;                /* zLib stream structure for inflate */
+#ifdef HAVE_BZIP2
+    bz_stream bstream;              /* bzLib stream structure for bziped */
+#endif
+#ifdef HAVE_AES
+    fcrypt_ctx aes_ctx;
+    prng_ctx aes_rng[1];
+#endif
+    int stream_initialised;         /* 1 is stream is initialized */
+    uInt pos_in_buffered_data;      /* last written byte in buffered_data */
+    
+    ZPOS64_T pos_local_header;      /* offset of the local header of the file currently writing */
+    char *central_header;           /* central header data for the current file */
+    uLong size_centralextra;
+    uLong size_centralheader;       /* size of the central header for cur file */
+    uLong size_centralextrafree;    /* Extra bytes allocated to the central header but that are not used */
+    uLong size_comment;
+    uLong flag;                     /* flag of the file currently writing */
+    
+    int method;                     /* compression method written to file.*/
+    int compression_method;         /* compression method to use */
+    int raw;                        /* 1 for directly writing raw data */
+    Byte buffered_data[Z_BUFSIZE];  /* buffer contain compressed data to be writ*/
+    uLong dosDate;
+    uLong crc32;
+    int zip64;                      /* Add ZIP64 extended information in the extra field */
+    uLong number_disk;              /* number of current disk used for spanning ZIP */
+    ZPOS64_T pos_zip64extrainfo;
+    ZPOS64_T total_compressed;
+    ZPOS64_T total_uncompressed;
+#ifndef NOCRYPT
+    unsigned long keys[3];          /* keys defining the pseudo-random sequence */
+    const unsigned long *pcrc_32_tab;
+    int crypt_header_size;
+#endif
+} curfile64_info;
+typedef struct {
+    zlib_filefunc64_32_def z_filefunc;
+    voidpf filestream;              /* io structure of the zipfile */
+    voidpf filestream_with_CD;      /* io structure of the zipfile with the central dir */
+    linkedlist_data central_dir;    /* datablock with central dir in construction*/
+    int in_opened_file_inzip;       /* 1 if a file in the zip is currently writ.*/
+    int append;                     /* append mode */
+    curfile64_info ci;              /* info on the file currently writing */
+    
+    ZPOS64_T begin_pos;             /* position of the beginning of the zipfile */
+    ZPOS64_T add_position_when_writting_offset;
+    ZPOS64_T number_entry;
+    ZPOS64_T disk_size;             /* size of each disk */
+    uLong number_disk;              /* number of the current disk, used for spanning ZIP */
+    uLong number_disk_with_CD;      /* number the the disk with central dir, used for spanning ZIP */
+#ifndef NO_ADDFILEINEXISTINGZIP
+    char *globalcomment;
+#endif
+} zip64_internal;
+    
 typedef const char* zipcharpc;
 
 #define APPEND_STATUS_CREATE        (0)
@@ -190,7 +268,7 @@ extern int ZEXPORT zipCloseFileInZipRaw64 OF((zipFile file, ZPOS64_T uncompresse
 /* Close the current file in the zipfile, for file opened with parameter raw=1 in zipOpenNewFileInZip2
    uncompressed_size and crc32 are value for the uncompressed size */
 
-extern int ZEXPORT zipClose OF((zipFile file, const char* global_comment));
+extern int ZEXPORT zipClose OF((zipFile file, const char* global_comment, int truncateIfNeed));
 /* Close the zipfile */
 
 /***************************************************************************/

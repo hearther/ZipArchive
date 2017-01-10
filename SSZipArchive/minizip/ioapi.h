@@ -103,6 +103,7 @@ typedef int      (ZCALLBACK *testerror_file_func) OF((voidpf opaque, voidpf stre
 
 typedef long     (ZCALLBACK *tell_file_func)      OF((voidpf opaque, voidpf stream));
 typedef long     (ZCALLBACK *seek_file_func)      OF((voidpf opaque, voidpf stream, uLong offset, int origin));
+typedef long     (ZCALLBACK *truncate_file_func)  OF((voidpf opaque, voidpf stream, ZPOS64_T offset));
 
 /* here is the "old" 32 bits structure structure */
 typedef struct zlib_filefunc_def_s
@@ -113,6 +114,7 @@ typedef struct zlib_filefunc_def_s
     write_file_func     zwrite_file;
     tell_file_func      ztell_file;
     seek_file_func      zseek_file;
+    truncate_file_func  ztruncate_file;
     close_file_func     zclose_file;
     testerror_file_func zerror_file;
     voidpf              opaque;
@@ -122,6 +124,7 @@ typedef ZPOS64_T (ZCALLBACK *tell64_file_func)    OF((voidpf opaque, voidpf stre
 typedef long     (ZCALLBACK *seek64_file_func)    OF((voidpf opaque, voidpf stream, ZPOS64_T offset, int origin));
 typedef voidpf   (ZCALLBACK *open64_file_func)    OF((voidpf opaque, const void* filename, int mode));
 typedef voidpf   (ZCALLBACK *opendisk64_file_func)OF((voidpf opaque, voidpf stream, int number_disk, int mode));
+typedef long     (ZCALLBACK *truncate64_file_func)OF((voidpf opaque, voidpf stream, ZPOS64_T offset));
 
 typedef struct zlib_filefunc64_def_s
 {
@@ -132,6 +135,7 @@ typedef struct zlib_filefunc64_def_s
     tell64_file_func     ztell64_file;
     seek64_file_func     zseek64_file;
     close_file_func      zclose_file;
+    truncate64_file_func ztruncate64_file;
     testerror_file_func  zerror_file;
     voidpf               opaque;
 } zlib_filefunc64_def;
@@ -147,6 +151,7 @@ typedef struct zlib_filefunc64_32_def_s
     opendisk_file_func  zopendisk32_file;
     tell_file_func      ztell32_file;
     seek_file_func      zseek32_file;
+    truncate_file_func  ztruncate32_file;
 } zlib_filefunc64_32_def;
 
 #define ZREAD64(filefunc,filestream,buf,size)       ((*((filefunc).zfile_func64.zread_file))        ((filefunc).zfile_func64.opaque,filestream,buf,size))
@@ -160,13 +165,15 @@ voidpf   call_zopen64 OF((const zlib_filefunc64_32_def* pfilefunc,const void*fil
 voidpf   call_zopendisk64 OF((const zlib_filefunc64_32_def* pfilefunc, voidpf filestream, int number_disk, int mode));
 long     call_zseek64 OF((const zlib_filefunc64_32_def* pfilefunc,voidpf filestream, ZPOS64_T offset, int origin));
 ZPOS64_T call_ztell64 OF((const zlib_filefunc64_32_def* pfilefunc,voidpf filestream));
-
+ZPOS64_T call_ztruncate64 OF((const zlib_filefunc64_32_def* pfilefunc,voidpf filestream, ZPOS64_T length));
+    
 void fill_zlib_filefunc64_32_def_from_filefunc32 OF((zlib_filefunc64_32_def* p_filefunc64_32,const zlib_filefunc_def* p_filefunc32));
 
 #define ZOPEN64(filefunc,filename,mode)             (call_zopen64((&(filefunc)),(filename),(mode)))
 #define ZOPENDISK64(filefunc,filestream,diskn,mode) (call_zopendisk64((&(filefunc)),(filestream),(diskn),(mode)))
 #define ZTELL64(filefunc,filestream)                (call_ztell64((&(filefunc)),(filestream)))
 #define ZSEEK64(filefunc,filestream,pos,mode)       (call_zseek64((&(filefunc)),(filestream),(pos),(mode)))
+#define ZTRUNCATE64(filefunc,filestream, length)    (call_ztruncate64((&(filefunc)),(filestream),(length)))
 
 #ifdef __cplusplus
 }

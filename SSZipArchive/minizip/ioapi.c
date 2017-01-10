@@ -77,6 +77,15 @@ ZPOS64_T call_ztell64 (const zlib_filefunc64_32_def* pfilefunc,voidpf filestream
         return (ZPOS64_T)-1;
     return tell_uLong;
 }
+ZPOS64_T call_ztruncate64 (const zlib_filefunc64_32_def* pfilefunc,voidpf filestream, ZPOS64_T length)
+{
+    int result;
+    if (pfilefunc->zfile_func64.ztruncate64_file != NULL)
+        return (*(pfilefunc->zfile_func64.ztruncate64_file)) (pfilefunc->zfile_func64.opaque,filestream, length);
+    result = (*(pfilefunc->ztruncate32_file))(pfilefunc->zfile_func64.opaque,filestream, length);
+    return result;
+}
+
 
 void fill_zlib_filefunc64_32_def_from_filefunc32(zlib_filefunc64_32_def* p_filefunc64_32,const zlib_filefunc_def* p_filefunc32)
 {
@@ -316,6 +325,34 @@ static long ZCALLBACK fseek64_file_func (voidpf opaque, voidpf stream, ZPOS64_T 
     return ret;
 }
 
+static long ZCALLBACK ftruncate_file_func (voidpf opaque, voidpf stream, uLong offset)
+{
+    FILE_IOPOSIX *ioposix = NULL;
+    long ret = 0;
+    
+    if (stream == NULL)
+        return -1;
+    ioposix = (FILE_IOPOSIX*)stream;
+    
+    int fd = fileno(ioposix->file);
+    ret = ftruncate(fd, offset);
+    return ret;
+}
+
+static long ZCALLBACK ftruncate64_file_func (voidpf opaque, voidpf stream, ZPOS64_T offset)
+{
+    FILE_IOPOSIX *ioposix = NULL;
+    long ret = 0;
+    
+    if (stream == NULL)
+        return -1;
+    ioposix = (FILE_IOPOSIX*)stream;
+    
+    int fd = fileno(ioposix->file);
+    ret = ftruncate(fd, offset);
+    return ret;
+}
+
 
 static int ZCALLBACK fclose_file_func (voidpf opaque, voidpf stream)
 {
@@ -353,6 +390,7 @@ void fill_fopen_filefunc (zlib_filefunc_def* pzlib_filefunc_def)
     pzlib_filefunc_def->zclose_file = fclose_file_func;
     pzlib_filefunc_def->zerror_file = ferror_file_func;
     pzlib_filefunc_def->opaque = NULL;
+    pzlib_filefunc_def->ztruncate_file = ftruncate_file_func;
 }
 
 void fill_fopen64_filefunc (zlib_filefunc64_def* pzlib_filefunc_def)
@@ -366,4 +404,5 @@ void fill_fopen64_filefunc (zlib_filefunc64_def* pzlib_filefunc_def)
     pzlib_filefunc_def->zclose_file = fclose_file_func;
     pzlib_filefunc_def->zerror_file = ferror_file_func;
     pzlib_filefunc_def->opaque = NULL;
+    pzlib_filefunc_def->ztruncate64_file = ftruncate64_file_func;
 }
