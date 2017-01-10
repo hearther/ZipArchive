@@ -851,7 +851,7 @@
 - (BOOL)close
 {
     NSAssert((_zip != NULL), @"[SSZipArchive] Attempting to close an archive which was never opened");
-    zipClose(_zip, NULL);
+    zipClose(_zip, NULL, 0);
     return YES;
 }
 
