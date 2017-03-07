@@ -54,7 +54,7 @@
             
             unzCloseCurrentFile(zip);
             ret = unzGoToNextFile(zip);
-        } while( ret==UNZ_OK && UNZ_OK!=UNZ_END_OF_LIST_OF_FILE );
+        } while( ret==UNZ_OK && ret!=UNZ_END_OF_LIST_OF_FILE );
         
     }
     

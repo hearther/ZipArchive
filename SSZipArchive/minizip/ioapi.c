@@ -96,13 +96,17 @@ void fill_zlib_filefunc64_32_def_from_filefunc32(zlib_filefunc64_32_def* p_filef
     p_filefunc64_32->zfile_func64.zerror_file = p_filefunc32->zerror_file;
     p_filefunc64_32->zfile_func64.zread_file = p_filefunc32->zread_file;
     p_filefunc64_32->zfile_func64.zwrite_file = p_filefunc32->zwrite_file;
-    p_filefunc64_32->zfile_func64.ztell64_file = NULL;
-    p_filefunc64_32->zfile_func64.zseek64_file = NULL;
     p_filefunc64_32->zfile_func64.zclose_file = p_filefunc32->zclose_file;
     p_filefunc64_32->zfile_func64.zerror_file = p_filefunc32->zerror_file;
-    p_filefunc64_32->zfile_func64.opaque = p_filefunc32->opaque;
     p_filefunc64_32->zseek32_file = p_filefunc32->zseek_file;
     p_filefunc64_32->ztell32_file = p_filefunc32->ztell_file;
+    p_filefunc64_32->zfile_func64.ztell64_file = p_filefunc32->ztell_file;
+    p_filefunc64_32->zfile_func64.zseek64_file = p_filefunc32->zseek_file;
+    
+    p_filefunc64_32->ztruncate32_file = p_filefunc32->ztruncate_file;
+    p_filefunc64_32->zfile_func64.opaque = p_filefunc32->opaque;
+    p_filefunc64_32->zfile_func64.ztruncate64_file = p_filefunc32->ztruncate_file;
+    
 }
 
 static voidpf  ZCALLBACK fopen_file_func OF((voidpf opaque, const char* filename, int mode));

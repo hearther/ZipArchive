@@ -1827,8 +1827,9 @@ extern int ZEXPORT zipClose(zipFile file, const char *global_comment, int trunca
     long long dataEnd = ZTELL64(zi->z_filefunc, zi->filestream);
     ZSEEK64(zi->z_filefunc, zi->filestream, 0, ZLIB_FILEFUNC_SEEK_END);
     long fileSize = ZTELL64(zi->z_filefunc, zi->filestream);
+    printf("%s [%p] dataEnd %x fileSize %d\n",__func__, zi->filestream, dataEnd, fileSize);
     if (truncateIfNeed && fileSize != dataEnd){
-        printf("%s dataEnd %x fileSize %d\n",__func__, dataEnd, fileSize);
+        printf("%s will call truncate", __func__);
         ZTRUNCATE64(zi->z_filefunc, zi->filestream, dataEnd);
     }
     //check file end? --end

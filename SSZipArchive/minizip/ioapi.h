@@ -103,7 +103,7 @@ typedef int      (ZCALLBACK *testerror_file_func) OF((voidpf opaque, voidpf stre
 
 typedef long     (ZCALLBACK *tell_file_func)      OF((voidpf opaque, voidpf stream));
 typedef long     (ZCALLBACK *seek_file_func)      OF((voidpf opaque, voidpf stream, uLong offset, int origin));
-typedef long     (ZCALLBACK *truncate_file_func)  OF((voidpf opaque, voidpf stream, ZPOS64_T offset));
+typedef long     (ZCALLBACK *truncate_file_func)  OF((voidpf opaque, voidpf stream, uLong offset));
 
 /* here is the "old" 32 bits structure structure */
 typedef struct zlib_filefunc_def_s
