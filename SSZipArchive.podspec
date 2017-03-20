@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
   s.osx.deployment_target = '10.6'
   s.watchos.deployment_target = '2.0'
   s.source_files = 'SSZipArchive/*.m', 'SSZipArchive/*.h', 'SSZipArchive/minizip/*', 'SSZipArchive/aes/*'
-  s.public_header_files = 'SSZipArchive/*.h', 'SSZipArchive/minizip/zip.h', 'SSZipArchive/minizip/unzip.h'
+  s.public_header_files = 'SSZipArchive/*.h', 'SSZipArchive/minizip/zip.h', 'SSZipArchive/minizip/unzip.h', 'SSZipArchive/minizip/ioapi.h'
   s.library = 'z'
   s.requires_arc = true
 end
