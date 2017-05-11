@@ -14,8 +14,6 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-#include "SSZipCommon.h"
-
 #ifndef _UNZ_H
 #define _UNZ_H
 
@@ -48,7 +46,6 @@ typedef unzFile__ *unzFile;
 typedef voidp unzFile;
 #endif
 
-
 #define UNZ_OK                          (0)
 #define UNZ_END_OF_LIST_OF_FILE         (-100)
 #define UNZ_ERRNO                       (Z_ERRNO)
@@ -59,6 +56,78 @@ typedef voidp unzFile;
 #define UNZ_CRCERROR                    (-105)
 #define UNZ_BADPASSWORD                 (-106)
 
+/* tm_unz contain date/time info */
+typedef struct tm_unz_s
+{
+    uInt tm_sec;                /* seconds after the minute - [0,59] */
+    uInt tm_min;                /* minutes after the hour - [0,59] */
+    uInt tm_hour;               /* hours since midnight - [0,23] */
+    uInt tm_mday;               /* day of the month - [1,31] */
+    uInt tm_mon;                /* months since January - [0,11] */
+    uInt tm_year;               /* years - [1980..2044] */
+} tm_unz;
+
+/* unz_global_info structure contain global data about the ZIPfile
+   These data comes from the end of central dir */
+typedef struct unz_global_info64_s
+{
+    ZPOS64_T number_entry;      /* total number of entries in the central dir on this disk */
+    uLong number_disk_with_CD;  /* number the the disk with central dir, used for spanning ZIP*/
+    uLong size_comment;         /* size of the global comment of the zipfile */
+} unz_global_info64;
+
+typedef struct unz_global_info_s
+{
+    uLong number_entry;         /* total number of entries in the central dir on this disk */
+    uLong number_disk_with_CD;  /* number the the disk with central dir, used for spanning ZIP*/
+    uLong size_comment;         /* size of the global comment of the zipfile */
+} unz_global_info;
+
+/* unz_file_info contain information about a file in the zipfile */
+typedef struct unz_file_info64_s
+{
+    uLong version;              /* version made by                 2 bytes */
+    uLong version_needed;       /* version needed to extract       2 bytes */
+    uLong flag;                 /* general purpose bit flag        2 bytes */
+    uLong compression_method;   /* compression method              2 bytes */
+    uLong dosDate;              /* last mod file date in Dos fmt   4 bytes */
+    uLong crc;                  /* crc-32                          4 bytes */
+    ZPOS64_T compressed_size;   /* compressed size                 8 bytes */
+    ZPOS64_T uncompressed_size; /* uncompressed size               8 bytes */
+    uLong size_filename;        /* filename length                 2 bytes */
+    uLong size_file_extra;      /* extra field length              2 bytes */
+    uLong size_file_comment;    /* file comment length             2 bytes */
+
+    uLong disk_num_start;       /* disk number start               2 bytes */
+    uLong internal_fa;          /* internal file attributes        2 bytes */
+    uLong external_fa;          /* external file attributes        4 bytes */
+
+    tm_unz tmu_date;
+    ZPOS64_T disk_offset;
+    uLong size_file_extra_internal;
+} unz_file_info64;
+
+typedef struct unz_file_info_s
+{
+    uLong version;              /* version made by                 2 bytes */
+    uLong version_needed;       /* version needed to extract       2 bytes */
+    uLong flag;                 /* general purpose bit flag        2 bytes */
+    uLong compression_method;   /* compression method              2 bytes */
+    uLong dosDate;              /* last mod file date in Dos fmt   4 bytes */
+    uLong crc;                  /* crc-32                          4 bytes */
+    uLong compressed_size;      /* compressed size                 4 bytes */
+    uLong uncompressed_size;    /* uncompressed size               4 bytes */
+    uLong size_filename;        /* filename length                 2 bytes */
+    uLong size_file_extra;      /* extra field length              2 bytes */
+    uLong size_file_comment;    /* file comment length             2 bytes */
+
+    uLong disk_num_start;       /* disk number start               2 bytes */
+    uLong internal_fa;          /* internal file attributes        2 bytes */
+    uLong external_fa;          /* external file attributes        4 bytes */
+
+    tm_unz tmu_date;
+    uLong disk_offset;
+} unz_file_info;
 
 /***************************************************************************/
 /* Opening and close a zip file */
@@ -82,7 +151,7 @@ extern unzFile ZEXPORT unzOpen2_64 OF((const void *path, zlib_filefunc64_def* pz
 /* Open a Zip file, like unz64Open, but provide a set of file low level API for read/write 64-bit operations */
 
 extern int ZEXPORT unzClose OF((unzFile file));
-/* Close a ZipFile opened with unzipOpen. If there is files inside the .Zip opened with unzOpenCurrentFile,
+/* Close a ZipFile opened with unzOpen. If there is files inside the .Zip opened with unzOpenCurrentFile,
    these files MUST be closed with unzipCloseCurrentFile before call unzipClose.
 
    return UNZ_OK if there is no error */
@@ -236,6 +305,10 @@ extern int ZEXPORT unzSetOffset64 OF((unzFile file, ZPOS64_T pos));
 extern z_off_t ZEXPORT unztell OF((unzFile file));
 extern ZPOS64_T ZEXPORT unztell64 OF((unzFile file));
 /* return current position in uncompressed data */
+
+extern int ZEXPORT unzseek OF((unzFile file, z_off_t offset, int origin));
+extern int ZEXPORT unzseek64 OF((unzFile file, ZPOS64_T offset, int origin));
+/* Seek within the uncompressed data if compression method is storage */
 
 extern int ZEXPORT unzeof OF((unzFile file));
 /* return 1 if the end of file was reached, 0 elsewhere */

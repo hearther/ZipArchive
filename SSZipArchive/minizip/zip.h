@@ -59,14 +59,6 @@ typedef voidp zipFile;
 #  endif
 #endif
 /* default memLevel */
-#ifndef Z_BUFSIZE
-#  define Z_BUFSIZE (64 * 1024)
-#endif
-#ifndef Z_MAXFILENAMEINZIP
-#  define Z_MAXFILENAMEINZIP (256)
-#endif
-    
-#define SIZEDATA_INDATABLOCK        (4096 - (4 * 4))
 
 /* tm_zip contain date/time info */
 typedef struct tm_zip_s
@@ -87,7 +79,8 @@ typedef struct
     uLong       external_fa;    /* external file attributes        4 bytes */
 } zip_fileinfo;
 
-typedef struct linkedlist_datablock_internal_s {
+typedef struct linkedlist_datablock_internal_s
+{
     struct linkedlist_datablock_internal_s *next_datablock;
     uLong avail_in_this_block;
     uLong filled_in_this_block;
@@ -95,12 +88,14 @@ typedef struct linkedlist_datablock_internal_s {
     unsigned char data[SIZEDATA_INDATABLOCK];
 } linkedlist_datablock_internal;
 
-typedef struct linkedlist_data_s {
+typedef struct linkedlist_data_s
+{
     linkedlist_datablock_internal *first_block;
     linkedlist_datablock_internal *last_block;
 } linkedlist_data;
 
-typedef struct {
+typedef struct
+{
     z_stream stream;                /* zLib stream structure for inflate */
 #ifdef HAVE_BZIP2
     bz_stream bstream;              /* bzLib stream structure for bziped */
@@ -132,12 +127,14 @@ typedef struct {
     ZPOS64_T total_compressed;
     ZPOS64_T total_uncompressed;
 #ifndef NOCRYPT
-    unsigned long keys[3];          /* keys defining the pseudo-random sequence */
-    const unsigned long *pcrc_32_tab;
+    unsigned int keys[3];          /* keys defining the pseudo-random sequence */
+    const unsigned int* pcrc_32_tab;
     int crypt_header_size;
 #endif
 } curfile64_info;
-typedef struct {
+
+typedef struct
+{
     zlib_filefunc64_32_def z_filefunc;
     voidpf filestream;              /* io structure of the zipfile */
     voidpf filestream_with_CD;      /* io structure of the zipfile with the central dir */
@@ -156,8 +153,6 @@ typedef struct {
     char *globalcomment;
 #endif
 } zip64_internal;
-    
-typedef const char* zipcharpc;
 
 #define APPEND_STATUS_CREATE        (0)
 #define APPEND_STATUS_CREATEAFTER   (1)
@@ -185,18 +180,18 @@ extern zipFile ZEXPORT zipOpen64 OF((const void *pathname, int append));
    you must open a zipfile, and create another. Of course, you can use RAW reading and writing to copy
    the file you did not want delete. */
 
-extern zipFile ZEXPORT zipOpen2 OF((const char *pathname, int append, zipcharpc* globalcomment, 
+extern zipFile ZEXPORT zipOpen2 OF((const char *pathname, int append, const char ** globalcomment, 
     zlib_filefunc_def* pzlib_filefunc_def));
 
-extern zipFile ZEXPORT zipOpen2_64 OF((const void *pathname, int append, zipcharpc* globalcomment, 
+extern zipFile ZEXPORT zipOpen2_64 OF((const void *pathname, int append, const char ** globalcomment, 
     zlib_filefunc64_def* pzlib_filefunc_def));
 
 extern zipFile ZEXPORT zipOpen3 OF((const char *pathname, int append, ZPOS64_T disk_size, 
-    zipcharpc* globalcomment, zlib_filefunc_def* pzlib_filefunc_def));
+    const char ** globalcomment, zlib_filefunc_def* pzlib_filefunc_def));
 /* Same as zipOpen2 but allows specification of spanned zip size */
 
 extern zipFile ZEXPORT zipOpen3_64 OF((const void *pathname, int append, ZPOS64_T disk_size, 
-    zipcharpc* globalcomment, zlib_filefunc64_def* pzlib_filefunc_def));
+    const char ** globalcomment, zlib_filefunc64_def* pzlib_filefunc_def));
 
 extern int ZEXPORT zipOpenNewFileInZip OF((zipFile file, const char* filename, const zip_fileinfo* zipfi,
     const void* extrafield_local, uInt size_extrafield_local, const void* extrafield_global, 
@@ -271,6 +266,10 @@ extern int ZEXPORT zipCloseFileInZipRaw64 OF((zipFile file, ZPOS64_T uncompresse
 extern int ZEXPORT zipClose OF((zipFile file, const char* global_comment, int truncateIfNeed));
 /* Close the zipfile */
 
+extern int ZEXPORT zipClose_64 OF((zipFile file, const char* global_comment));
+
+extern int ZEXPORT zipClose2_64 OF((zipFile file, const char* global_comment, uLong versionMadeBy));
+/* Same as zipClose_64 except versionMadeBy field */
 /***************************************************************************/
 
 int get_file_crc(const char* filenameinzip, void *buf, unsigned long size_buf, unsigned long* result_crc);
