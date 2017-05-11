@@ -1913,7 +1913,7 @@ extern int ZEXPORT unzseekCompression64(unzFile file, ZPOS64_T offset, int origi
     int bufLen = 65535;
     unsigned char *buffer = malloc(sizeof(char)*bufLen);
     while (sizeRemain && ret == UNZ_OK){
-        unsigned toRead = (unsigned)min(sizeRemain, bufLen);
+        unsigned toRead = (unsigned)(((sizeRemain) < (bufLen)) ? (sizeRemain) : (bufLen));
         int lenRead = unzReadCurrentFile(file, buffer, (unsigned) toRead);
         if (lenRead == toRead){
             sizeRemain -= lenRead;
