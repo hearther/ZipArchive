@@ -1884,6 +1884,49 @@ extern int ZEXPORT unzseek(unzFile file, z_off_t offset, int origin)
     return unzseek64(file, (ZPOS64_T)offset, origin);
 }
 
+//compressed zip is not easy to seek we just reopen current file and move to the offset
+extern int ZEXPORT unzseekCompression64(unzFile file, ZPOS64_T offset, int origin)
+{
+    
+    unz64_s *s;
+    s = (unz64_s *)file;
+    
+    ZPOS64_T position;
+    if (origin == SEEK_SET){
+        position = offset;
+    }
+    else if (origin == SEEK_CUR){
+        position = s->pfile_in_zip_read->total_out_64 + offset;
+    }
+    else if (origin == SEEK_END) {
+        //好像有問題
+        position = s->cur_file_info.compressed_size + offset;
+    }
+    else
+        return UNZ_PARAMERROR;
+    
+    unzCloseCurrentFile(file);
+    unzOpenCurrentFile(file);
+    
+    int ret = UNZ_OK;
+    long long sizeRemain = position;
+    int bufLen = 65535;
+    unsigned char *buffer = malloc(sizeof(char)*bufLen);
+    while (sizeRemain && ret == UNZ_OK){
+        unsigned toRead = (unsigned)min(sizeRemain, bufLen);
+        int lenRead = unzReadCurrentFile(file, buffer, (unsigned) toRead);
+        if (lenRead == toRead){
+            sizeRemain -= lenRead;
+        }
+        else{
+            ret = UNZ_INTERNALERROR;
+        }
+    }
+    
+    
+    return ret;
+}
+
 extern int ZEXPORT unzseek64(unzFile file, ZPOS64_T offset, int origin)
 {
     unz64_s *s;
@@ -1891,16 +1934,17 @@ extern int ZEXPORT unzseek64(unzFile file, ZPOS64_T offset, int origin)
     ZPOS64_T stream_pos_end;
     int isWithinBuffer;
     ZPOS64_T position;
-
+    
     if (file == NULL)
         return UNZ_PARAMERROR;
-
+    
     s = (unz64_s *)file;
-
+    
     if (s->pfile_in_zip_read == NULL)
         return UNZ_ERRNO;
-    if (s->pfile_in_zip_read->compression_method != 0)
-        return UNZ_ERRNO;
+    if (s->pfile_in_zip_read->compression_method != 0){
+        return unzseekCompression64(file, offset, origin);
+    }
 
     if (origin == SEEK_SET)
         position = offset;
