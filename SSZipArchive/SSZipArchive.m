@@ -314,9 +314,9 @@ NSString *const SSZipArchiveErrorDomain = @"SSZipArchiveErrorDomain";
             // The original constants can be found here:
             //    http://minnie.tuhs.org/cgi-bin/utree.pl?file=4.4BSD/usr/include/sys/stat.h
             //
-            const uLong ZipUNIXVersion = 3;
-            const uLong BSD_SFMT = 0170000;
-            const uLong BSD_IFLNK = 0120000;
+            const unsigned long ZipUNIXVersion = 3;
+            const unsigned long BSD_SFMT = 0170000;
+            const unsigned long BSD_IFLNK = 0120000;
             
             BOOL fileIsSymbolicLink = NO;
             if (((fileInfo.version >> 8) == ZipUNIXVersion) && BSD_IFLNK == (BSD_SFMT & (fileInfo.external_fa >> 16))) {
@@ -415,7 +415,7 @@ NSString *const SSZipArchiveErrorDomain = @"SSZipArchiveErrorDomain";
                             }
 
                             // Set the original permissions on the file
-                            uLong permissions = fileInfo.external_fa >> 16;
+                            unsigned long permissions = fileInfo.external_fa >> 16;
                             if (permissions != 0) {
                                 // Store it into a NSNumber
                                 NSNumber *permissionsValue = @(permissions);
@@ -723,7 +723,7 @@ NSString *const SSZipArchiveErrorDomain = @"SSZipArchiveErrorDomain";
             NSInteger permissionsOctal = 0100000 + permissionsShort;
             
             // Convert this into a long value
-            uLong permissionsLong = @(permissionsOctal).unsignedLongValue;
+            unsigned long permissionsLong = @(permissionsOctal).unsignedLongValue;
             
             // Store this into the external file attributes once it has been shifted 16 places left to form part of the second from last byte
             zipInfo.external_fa = permissionsLong << 16L;
@@ -785,7 +785,7 @@ NSString *const SSZipArchiveErrorDomain = @"SSZipArchiveErrorDomain";
             NSInteger permissionsOctal = 0100000 + permissionsShort;
             
             // Convert this into a long value
-            uLong permissionsLong = @(permissionsOctal).unsignedLongValue;
+            unsigned long permissionsLong = @(permissionsOctal).unsignedLongValue;
             
             // Store this into the external file attributes once it has been shifted 16 places left to form part of the second from last byte
             zipInfo.external_fa = permissionsLong << 16L;
@@ -836,7 +836,7 @@ NSString *const SSZipArchiveErrorDomain = @"SSZipArchiveErrorDomain";
 - (BOOL)close
 {
     NSAssert((_zip != NULL), @"[SSZipArchive] Attempting to close an archive which was never opened");
-    zipClose(_zip, NULL);
+    zipClose(_zip, NULL, 0);
     return YES;
 }
 
