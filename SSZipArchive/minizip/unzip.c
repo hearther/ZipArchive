@@ -1897,13 +1897,13 @@ extern ZPOS64_T ZEXPORT unztell64(unzFile file)
     return s->pfile_in_zip_read->total_out_64;
 }
 
-extern int ZEXPORT unzseek(unzFile file, z_off_t offset, int origin)
+extern int ZEXPORT unzseek(unzFile file, z_off_t offset, int origin, const char *password)
 {
-    return unzseek64(file, (ZPOS64_T)offset, origin);
+    return unzseek64(file, (ZPOS64_T)offset, origin, password);
 }
 
 //compressed zip is not easy to seek we just reopen current file and move to the offset
-extern int ZEXPORT unzseekCompression64(unzFile file, ZPOS64_T offset, int origin)
+extern int ZEXPORT unzseekCompression64(unzFile file, ZPOS64_T offset, int origin, const char *password)
 {
     
     unz64_s *s;
@@ -1924,12 +1924,11 @@ extern int ZEXPORT unzseekCompression64(unzFile file, ZPOS64_T offset, int origi
         return UNZ_PARAMERROR;
     
     unzCloseCurrentFile(file);
-//if ([pw length] == 0) {
-//    ret = unzOpenCurrentFile(zip);
-//} else {
-//    ret = unzOpenCurrentFilePassword(zip, [pw cStringUsingEncoding:NSASCIIStringEncoding]);
-//}
+    if (password == NULL) {
     unzOpenCurrentFile(file);
+    } else {
+        unzOpenCurrentFilePassword(file, password);
+    }
 
     int ret = UNZ_OK;
     long long sizeRemain = position;
@@ -1950,7 +1949,7 @@ extern int ZEXPORT unzseekCompression64(unzFile file, ZPOS64_T offset, int origi
     return ret;
 }
 
-extern int ZEXPORT unzseek64(unzFile file, ZPOS64_T offset, int origin)
+extern int ZEXPORT unzseek64(unzFile file, ZPOS64_T offset, int origin, const char *password)
 {
     unz64_s *s;
     ZPOS64_T stream_pos_begin;
@@ -1966,7 +1965,7 @@ extern int ZEXPORT unzseek64(unzFile file, ZPOS64_T offset, int origin)
     if (s->pfile_in_zip_read == NULL)
         return UNZ_ERRNO;
     if (s->pfile_in_zip_read->compression_method != 0){
-        return unzseekCompression64(file, offset, origin);
+        return unzseekCompression64(file, offset, origin, password);
     }
 
     if (origin == SEEK_SET)

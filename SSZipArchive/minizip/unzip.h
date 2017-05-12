@@ -234,8 +234,8 @@ extern z_off_t ZEXPORT unztell OF((unzFile file));
 extern ZPOS64_T ZEXPORT unztell64 OF((unzFile file));
 /* return current position in uncompressed data */
 
-extern int ZEXPORT unzseek OF((unzFile file, z_off_t offset, int origin));
-extern int ZEXPORT unzseek64 OF((unzFile file, ZPOS64_T offset, int origin));
+extern int ZEXPORT unzseek OF((unzFile file, z_off_t offset, int origin, const char *password));
+extern int ZEXPORT unzseek64 OF((unzFile file, ZPOS64_T offset, int origin, const char *password));
 /* Seek within the uncompressed data if compression method is storage */
 
 extern int ZEXPORT unzeof OF((unzFile file));
