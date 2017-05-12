@@ -167,8 +167,8 @@ typedef struct
     /* structure about the current file if we are decompressing it */
     int isZip64;                        /* is the current file zip64 */
 #ifndef NOUNCRYPT
-    unsigned int keys[3];               /* keys defining the pseudo-random sequence */
-    const unsigned int* pcrc_32_tab;
+    unsigned long keys[3];               /* keys defining the pseudo-random sequence */
+    const unsigned long* pcrc_32_tab;
 #endif
 } unz64_s;
 
@@ -196,7 +196,7 @@ local void unz64local_DosDateToTmuDate(ZPOS64_T ulDosDate, tm_unz *ptm)
 }
 
 /* Read a byte from a gz_stream; Return EOF for end of file. */
-local int unz64local_getByte OF((const zlib_filefunc64_32_def* pzlib_filefunc_def, voidpf filestream, int *pi));
+//local int unz64local_getByte OF((const zlib_filefunc64_32_def* pzlib_filefunc_def, voidpf filestream, int *pi));
 local int unz64local_getByte(const zlib_filefunc64_32_def *pzlib_filefunc_def, voidpf filestream, int *pi)
 {
     unsigned char c;
@@ -1286,7 +1286,7 @@ extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int *method, int *level, in
 #endif
         {
             int i;
-            s->pcrc_32_tab = (const unsigned int*)get_crc_table();
+            s->pcrc_32_tab = (const unsigned long *)get_crc_table();
             init_keys(password, s->keys, s->pcrc_32_tab);
 
             if (ZREAD64(s->z_filefunc, s->filestream, source, 12) < 12)
@@ -1354,6 +1354,24 @@ extern int ZEXPORT unzReadCurrentFile(unzFile file, voidp buf, unsigned len)
     }
     else
     {
+        // NOTE:
+        // This bit of code seems to try to set the amount of space in the output buffer based on the
+        // value stored in the headers stored in the .zip file. However, if those values are incorrect
+        // it may result in a loss of data when uncompresssing that file. The compressed data is still
+        // legit and will deflate without knowing the uncompressed code so this tidbit is unnecessary and
+        // may cause issues for some .zip files.
+        //
+        // It's removed in here to fix those issues.
+        //
+        // See: https://github.com/ZipArchive/ziparchive/issues/16
+        //
+        
+        /*
+        
+         
+         FIXME: Upgrading to minizip 1.1 caused issues here, Uncommented the code that was commented before. 11/24/2015
+         */
+         
         if (len > s->pfile_in_zip_read->rest_read_uncompressed)
             s->pfile_in_zip_read->stream.avail_out = (unsigned int)s->pfile_in_zip_read->rest_read_uncompressed;
     }
@@ -1906,8 +1924,13 @@ extern int ZEXPORT unzseekCompression64(unzFile file, ZPOS64_T offset, int origi
         return UNZ_PARAMERROR;
     
     unzCloseCurrentFile(file);
+//if ([pw length] == 0) {
+//    ret = unzOpenCurrentFile(zip);
+//} else {
+//    ret = unzOpenCurrentFilePassword(zip, [pw cStringUsingEncoding:NSASCIIStringEncoding]);
+//}
     unzOpenCurrentFile(file);
-    
+
     int ret = UNZ_OK;
     long long sizeRemain = position;
     int bufLen = 65535;
@@ -1922,7 +1945,7 @@ extern int ZEXPORT unzseekCompression64(unzFile file, ZPOS64_T offset, int origi
             ret = UNZ_INTERNALERROR;
         }
     }
-    
+    free(buffer);
     
     return ret;
 }

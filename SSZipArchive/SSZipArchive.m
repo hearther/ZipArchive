@@ -75,8 +75,10 @@ NSString *const SSZipArchiveErrorDomain = @"SSZipArchiveErrorDomain";
         return NO;
     }
 
+    BOOL isProtect = NO;
     int ret = unzGoToFirstFile(zip);
-    if (ret == UNZ_OK) {
+    if (ret == UNZ_OK)
+    {
         do {
             if ([pw length] == 0) {
                 ret = unzOpenCurrentFile(zip);
@@ -84,14 +86,11 @@ NSString *const SSZipArchiveErrorDomain = @"SSZipArchiveErrorDomain";
                 ret = unzOpenCurrentFilePassword(zip, [pw cStringUsingEncoding:NSASCIIStringEncoding]);
             }
             if (ret != UNZ_OK) {
-                if (ret != UNZ_BADPASSWORD) {
-                    if (error) {
-                        *error = [NSError errorWithDomain:SSZipArchiveErrorDomain
-                                                     code:SSZipArchiveErrorCodeFailedOpenFirstFile
-                                                 userInfo:@{NSLocalizedDescriptionKey: @"failed to open first file in zip file"}];
-                    }
+                if (error) {
+                    *error = [NSError errorWithDomain:SSZipArchiveErrorDomain
+                                                 code:SSZipArchiveErrorCodeFailedOpenFirstFile
+                                             userInfo:@{NSLocalizedDescriptionKey: @"failed to open first file in zip file"}];
                 }
-                return NO;
             }
             unz_file_info fileInfo = {0};
             ret = unzGetCurrentFileInfo(zip, &fileInfo, NULL, 0, NULL, 0, NULL, 0);
@@ -101,7 +100,6 @@ NSString *const SSZipArchiveErrorDomain = @"SSZipArchiveErrorDomain";
                                                  code:SSZipArchiveErrorCodeFileInfoNotLoadable
                                              userInfo:@{NSLocalizedDescriptionKey: @"failed to retrieve info for file"}];
                 }
-                return NO;
             } else if((fileInfo.flag & 1) == 1) {
                 unsigned char buffer[10] = {0};
                 int readBytes = unzReadCurrentFile(zip, buffer, (unsigned)MIN(10UL,fileInfo.uncompressed_size));
@@ -114,18 +112,20 @@ NSString *const SSZipArchiveErrorDomain = @"SSZipArchiveErrorDomain";
                                                      userInfo:@{NSLocalizedDescriptionKey: @"failed to read contents of file entry"}];
                         }
                     }
-                    return NO;
                 }
-                return YES;
+                else {
+                    isProtect = YES;
+                }
             }
             
             unzCloseCurrentFile(zip);
             ret = unzGoToNextFile(zip);
-        } while (ret==UNZ_OK && UNZ_OK!=UNZ_END_OF_LIST_OF_FILE);
+        } while (ret==UNZ_OK && ret != UNZ_END_OF_LIST_OF_FILE);
+        unzCloseCurrentFile(zip);
+        unzClose(zip);
     }
-
-    // No password required
-    return YES;
+    
+    return isProtect;
 }
 
 #pragma mark - Unzipping

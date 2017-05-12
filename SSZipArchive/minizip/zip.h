@@ -136,8 +136,8 @@ typedef struct
     ZPOS64_T total_compressed;
     ZPOS64_T total_uncompressed;
 #ifndef NOCRYPT
-    unsigned int keys[3];          /* keys defining the pseudo-random sequence */
-    const unsigned int* pcrc_32_tab;
+    unsigned long keys[3];          /* keys defining the pseudo-random sequence */
+    const unsigned long* pcrc_32_tab;
     int crypt_header_size;
 #endif
 } curfile64_info;
