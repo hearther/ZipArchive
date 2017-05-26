@@ -1400,7 +1400,11 @@ local int zip64FlushWriteBuffer(zip64_internal *zi)
     return err;
 }
 
-extern int ZEXPORT zipWriteInFileInZip(zipFile file, const void *buf, unsigned int len)
+extern int ZEXPORT zipWriteInFileInZip(zipFile file, const void *buf, unsigned int len){
+    return zipWriteInFileInZipWithP(file, buf, len, 0);
+}
+
+extern int ZEXPORT zipWriteInFileInZipWithP(zipFile file, const void *buf, unsigned int len, zip_progress_fun_ptr progressP)
 {
     zip64_internal *zi;
     int err = ZIP_OK;
@@ -1468,6 +1472,9 @@ extern int ZEXPORT zipWriteInFileInZip(zipFile file, const void *buf, unsigned i
                 uLong total_out_before = zi->ci.stream.total_out;
                 err = deflate(&zi->ci.stream, Z_NO_FLUSH);
                 zi->ci.pos_in_buffered_data += (uInt)(zi->ci.stream.total_out - total_out_before);
+                if (progressP){
+                    (*progressP)(zi->ci.pos_in_buffered_data);
+                }
             }
             else
             {
@@ -1488,6 +1495,9 @@ extern int ZEXPORT zipWriteInFileInZip(zipFile file, const void *buf, unsigned i
                 zi->ci.stream.total_in += copy_this;
                 zi->ci.stream.total_out += copy_this;
                 zi->ci.pos_in_buffered_data += copy_this;
+                if (progressP){
+                    (*progressP)(zi->ci.pos_in_buffered_data);
+                }
             }
         }
     }

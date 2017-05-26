@@ -262,6 +262,9 @@ extern int ZEXPORT zipOpenNewFileInZip4_64 OF((zipFile file, const char* filenam
 /* Same as zipOpenNewFileInZip4 with zip64 support */
 
 extern int ZEXPORT zipWriteInFileInZip OF((zipFile file, const void* buf, unsigned len));
+    
+typedef void (*zip_progress_fun_ptr)(long long);
+extern int ZEXPORT zipWriteInFileInZipWithP OF((zipFile file, const void* buf, unsigned len, zip_progress_fun_ptr p));
 /* Write data in the zipfile */
 
 extern int ZEXPORT zipCloseFileInZip OF((zipFile file));
