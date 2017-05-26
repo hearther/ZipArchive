@@ -76,11 +76,6 @@ typedef struct unz_global_info64_s
 
 static void (^ocZipBlock)(long long doneSize) = NULL;
 
-extern void zipProgress(long long doneSize)
-{
-    if (ocZipBlock){
-        ocZipBlock(doneSize);
-    }
-}
+extern void zipProgress(long long doneSize);
 
 #endif

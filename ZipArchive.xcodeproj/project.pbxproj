@@ -44,6 +44,7 @@
 		AFF75A4D1C37282700F450AC /* zip.c in Sources */ = {isa = PBXBuildFile; fileRef = B423AE461C0DF7950004A2F1 /* zip.c */; };
 		AFF75A4E1C37282700F450AC /* zip.h in Headers */ = {isa = PBXBuildFile; fileRef = B423AE471C0DF7950004A2F1 /* zip.h */; };
 		AFF75A511C3728F000F450AC /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B423AE6E1C0DF83F0004A2F1 /* libz.tbd */; };
+		B03DBAB11ED82D15003434D5 /* SSZipCommon.c in Sources */ = {isa = PBXBuildFile; fileRef = B03DBAB01ED82D15003434D5 /* SSZipCommon.c */; };
 		B423AE4B1C0DF7950004A2F1 /* aes.h in Headers */ = {isa = PBXBuildFile; fileRef = B423AE271C0DF7950004A2F1 /* aes.h */; };
 		B423AE4C1C0DF7950004A2F1 /* aes_via_ace.h in Headers */ = {isa = PBXBuildFile; fileRef = B423AE281C0DF7950004A2F1 /* aes_via_ace.h */; };
 		B423AE4D1C0DF7950004A2F1 /* aescrypt.c in Sources */ = {isa = PBXBuildFile; fileRef = B423AE291C0DF7950004A2F1 /* aescrypt.c */; };
@@ -84,6 +85,7 @@
 		389869341D5BC30100F18782 /* SSZipCommon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSZipCommon.h; sourceTree = "<group>"; };
 		87ACF3E91D2DAFAD00ED2F7E /* SSZipArchive+Swift.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SSZipArchive+Swift.swift"; sourceTree = "<group>"; };
 		AFF75A241C37279600F450AC /* ZipArchive.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ZipArchive.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		B03DBAB01ED82D15003434D5 /* SSZipCommon.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SSZipCommon.c; sourceTree = "<group>"; };
 		B423AE1A1C0DF76A0004A2F1 /* ZipArchive.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ZipArchive.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B423AE271C0DF7950004A2F1 /* aes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = aes.h; sourceTree = "<group>"; };
 		B423AE281C0DF7950004A2F1 /* aes_via_ace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = aes_via_ace.h; sourceTree = "<group>"; };
@@ -163,6 +165,7 @@
 		B423AE251C0DF7950004A2F1 /* SSZipArchive */ = {
 			isa = PBXGroup;
 			children = (
+				B03DBAB01ED82D15003434D5 /* SSZipCommon.c */,
 				389869341D5BC30100F18782 /* SSZipCommon.h */,
 				B423AE261C0DF7950004A2F1 /* aes */,
 				B423AE3D1C0DF7950004A2F1 /* Info.plist */,
@@ -395,6 +398,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B03DBAB11ED82D15003434D5 /* SSZipCommon.c in Sources */,
 				B423AE5C1C0DF7950004A2F1 /* pwd2key.c in Sources */,
 				B423AE581C0DF7950004A2F1 /* hmac.c in Sources */,
 				87ACF3EA1D2DAFAD00ED2F7E /* SSZipArchive+Swift.swift in Sources */,
