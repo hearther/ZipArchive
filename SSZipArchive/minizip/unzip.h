@@ -90,7 +90,7 @@ extern int ZEXPORT unzGetGlobalInfo64 OF((unzFile file, unz_global_info64 *pglob
 
    return UNZ_OK if no error */
 
-extern int ZEXPORT unzGetGlobalComment OF((unzFile file, char *comment, unsigned long comment_size));
+extern int ZEXPORT unzGetGlobalComment OF((unzFile file, char *comment, uLong comment_size));
 /* Get the global comment string of the ZipFile, in the comment buffer.
 
    uSizeBuf is the size of the szComment buffer.
@@ -131,9 +131,9 @@ extern int ZEXPORT unzReadCurrentFile OF((unzFile file, voidp buf, unsigned len)
    return <0 with error code if there is an error (UNZ_ERRNO for IO error, or zLib error for uncompress error) */
 
 extern int ZEXPORT unzGetCurrentFileInfo OF((unzFile file, unz_file_info *pfile_info, char *filename, 
-    unsigned long filename_size, void *extrafield, unsigned long extrafield_size, char *comment, unsigned long comment_size));
+    uLong filename_size, void *extrafield, uLong extrafield_size, char *comment, uLong comment_size));
 extern int ZEXPORT unzGetCurrentFileInfo64 OF((unzFile file, unz_file_info64 *pfile_info, char *filename,
-    unsigned long filename_size, void *extrafield, unsigned long extrafield_size, char *comment, unsigned long comment_size));
+    uLong filename_size, void *extrafield, uLong extrafield_size, char *comment, uLong comment_size));
 /* Get Info about the current file
 
    pfile_info if != NULL, the *pfile_info structure will contain somes info about the current file
@@ -167,7 +167,7 @@ extern int ZEXPORT unzCloseCurrentFile OF((unzFile file));
 typedef int (*unzFileNameComparer)(unzFile file, const char *filename1, const char *filename2);
 typedef int (*unzIteratorFunction)(unzFile file);
 typedef int (*unzIteratorFunction2)(unzFile file, unz_file_info64 *pfile_info, char *filename,
-    unsigned long filename_size, void *extrafield, unsigned long extrafield_size, char *comment, unsigned long comment_size);
+    uLong filename_size, void *extrafield, uLong extrafield_size, char *comment, uLong comment_size);
 
 extern int ZEXPORT unzGoToFirstFile OF((unzFile file));
 /* Set the current file of the zipfile to the first file.
@@ -175,7 +175,7 @@ extern int ZEXPORT unzGoToFirstFile OF((unzFile file));
    return UNZ_OK if no error */
 
 extern int ZEXPORT unzGoToFirstFile2 OF((unzFile file, unz_file_info64 *pfile_info, char *filename,
-    unsigned long filename_size, void *extrafield, unsigned long extrafield_size, char *comment, unsigned long comment_size));
+    uLong filename_size, void *extrafield, uLong extrafield_size, char *comment, uLong comment_size));
 /* Set the current file of the zipfile to the first file and retrieves the current info on success. 
    Not as seek intensive as unzGoToFirstFile + unzGetCurrentFileInfo.
 
@@ -188,7 +188,7 @@ extern int ZEXPORT unzGoToNextFile OF((unzFile file));
    return UNZ_END_OF_LIST_OF_FILE if the actual file was the latest */
 
 extern int ZEXPORT unzGoToNextFile2 OF((unzFile file, unz_file_info64 *pfile_info, char *filename,
-    unsigned long filename_size, void *extrafield, unsigned long extrafield_size, char *comment, unsigned long comment_size));
+    uLong filename_size, void *extrafield, uLong extrafield_size, char *comment, uLong comment_size));
 /* Set the current file of the zipfile to the next file and retrieves the current 
    info on success. Does less seeking around than unzGotoNextFile + unzGetCurrentFileInfo.
 
@@ -206,8 +206,8 @@ extern int ZEXPORT unzLocateFile OF((unzFile file, const char *filename, unzFile
 
 typedef struct unz_file_pos_s
 {
-    unsigned long pos_in_zip_directory;     /* offset in zip file directory */
-    unsigned long num_of_file;              /* # of file */
+    uLong pos_in_zip_directory;     /* offset in zip file directory */
+    uLong num_of_file;              /* # of file */
 } unz_file_pos;
 
 extern int ZEXPORT unzGetFilePos OF((unzFile file, unz_file_pos* file_pos));
@@ -222,11 +222,11 @@ typedef struct unz64_file_pos_s
 extern int ZEXPORT unzGetFilePos64 OF((unzFile file, unz64_file_pos* file_pos));
 extern int ZEXPORT unzGoToFilePos64 OF((unzFile file, const unz64_file_pos* file_pos));
 
-extern unsigned long ZEXPORT unzGetOffset OF((unzFile file));
+extern uLong ZEXPORT unzGetOffset OF((unzFile file));
 extern ZPOS64_T ZEXPORT unzGetOffset64 OF((unzFile file));
 /* Get the current file offset */
 
-extern int ZEXPORT unzSetOffset OF((unzFile file, unsigned long pos));
+extern int ZEXPORT unzSetOffset OF((unzFile file, uLong pos));
 extern int ZEXPORT unzSetOffset64 OF((unzFile file, ZPOS64_T pos));
 /* Set the current file offset */
 
@@ -234,8 +234,8 @@ extern z_off_t ZEXPORT unztell OF((unzFile file));
 extern ZPOS64_T ZEXPORT unztell64 OF((unzFile file));
 /* return current position in uncompressed data */
 
-extern int ZEXPORT unzseek OF((unzFile file, z_off_t offset, int origin, const char *password));
-extern int ZEXPORT unzseek64 OF((unzFile file, ZPOS64_T offset, int origin, const char *password));
+extern ZPOS64_T ZEXPORT unzseek OF((unzFile file, z_off_t offset, int origin, const char *password));
+extern ZPOS64_T ZEXPORT unzseek64 OF((unzFile file, ZPOS64_T offset, int origin, const char *password));
 /* Seek within the uncompressed data if compression method is storage */
 
 extern int ZEXPORT unzeof OF((unzFile file));
