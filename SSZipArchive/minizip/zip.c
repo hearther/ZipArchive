@@ -1473,7 +1473,7 @@ extern int ZEXPORT zipWriteInFileInZipWithP(zipFile file, const void *buf, unsig
                 err = deflate(&zi->ci.stream, Z_NO_FLUSH);
                 zi->ci.pos_in_buffered_data += (uInt)(zi->ci.stream.total_out - total_out_before);
                 if (progressP){
-                    (*progressP)(zi->ci.pos_in_buffered_data);
+                    (*progressP)(zi->ci.total_uncompressed);
                 }
             }
             else
@@ -1496,7 +1496,7 @@ extern int ZEXPORT zipWriteInFileInZipWithP(zipFile file, const void *buf, unsig
                 zi->ci.stream.total_out += copy_this;
                 zi->ci.pos_in_buffered_data += copy_this;
                 if (progressP){
-                    (*progressP)(zi->ci.pos_in_buffered_data);
+                    (*progressP)(zi->ci.total_uncompressed);
                 }
             }
         }

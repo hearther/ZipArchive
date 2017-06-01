@@ -74,7 +74,7 @@ typedef struct unz_global_info64_s
     unsigned long size_comment;         /* size of the global comment of the zipfile */
 } unz_global_info64;
 
-static void (^ocZipBlock)(long long doneSize) = NULL;
+void (^ocZipBlock)(long long doneSize) = NULL;
 
 extern void zipProgress(long long doneSize);
 
